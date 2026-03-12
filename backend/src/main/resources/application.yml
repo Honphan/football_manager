@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: backend
+
+  datasource:
+    # Tự động lấy cấu hình Cloud nếu có, không thì dùng localhost
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/footballmanager}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:2005}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  data:
+    redis:
+      # Tương tự cho Redis, ĐẶC BIỆT thêm dòng password cho Upstash
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+      password: ${SPRING_DATA_REDIS_PASSWORD:} # Mặc định để trống cho máy nhà
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    session:
+      cookie:
+        http-only: true
+        secure: false
+        same-site: lax
+
+app:
+  auth:
+    secret-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30
+    jwt-expiration-ms: 86400000
+    jwt-refresh-expiration-ms: 604800000
+    cookie-name: app_token
+    cookie-secure: false
+  cors:
+    # Thiết lập biến cho Frontend URL (rất cần khi deploy React lên mạng)
+    allowed-origins: ${FRONTEND_URL:http://localhost:5173}
+
+vnpay:
+  tmn_code: "4Y30R96X"
+  hash_secret: "R7DBBTR5T4J3IKU0IJ8XEL2JU9KRRTMQ"
+  pay_url: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+  # URL trả về của VNPay cũng phải linh hoạt theo Frontend
+  return_url: "${FRONTEND_URL:http://localhost:5173}/payment-result"
+  api_url: "https://sandbox.vnpayment.vn/merchant_webapi/api.transaction"

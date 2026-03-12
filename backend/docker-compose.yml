@@ -1,0 +1,35 @@
+services:
+  # KHÔNG CÒN db VÀ redis NỮA - CHÚNG ĐÃ LÊN CLOUD!
+
+  # 1. Spring Boot Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: springboot_backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT}:8080"
+    # Đã xóa depends_on vì không còn chờ db và redis local nữa
+    environment:
+      # Sử dụng biến môi trường mới để trỏ lên Cloud
+      - SPRING_DATASOURCE_URL=${CLOUD_DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${CLOUD_DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${CLOUD_DB_PASSWORD}
+      - SPRING_DATA_REDIS_HOST=${CLOUD_REDIS_HOST}
+      - SPRING_DATA_REDIS_PORT=${CLOUD_REDIS_PORT}
+      - SPRING_DATA_REDIS_PASSWORD=${CLOUD_REDIS_PASSWORD}
+
+  # 2. React Frontend
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: react_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT}:80"
+    depends_on:
+      - backend
+
+# Đã xóa phần volumes vì không còn lưu trữ data local cho DB/Redis nữa
